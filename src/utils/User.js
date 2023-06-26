@@ -1,9 +1,8 @@
-import { homedir } from "node:os"
+import { homedir, type } from "node:os"
 import * as path from "node:path"
-import { stat } from 'node:fs/promises';
+import { stat, readdir } from 'node:fs/promises';
 
 import { sayCurrentPath, sayHello, sayGoodbye, sayInputError, sayOperationFailed } from './printCommands.js';
-import parsePath from "./parsePath.js";
 
 export default class User {
   constructor(userName) {
@@ -46,8 +45,27 @@ export default class User {
     }
   }
 
-  ls() {
-    console.log('ls');
+  async ls() {
+    try {
+      const files = await readdir(this.currentdir, { withFileTypes: true });
+      const filteredFiles = files.reduce((result, currentItem) => {
+        if (currentItem.isDirectory()) {
+          const item = { name: currentItem.name, type: 'directory' }
+          result.push(item);
+        }
+        if (currentItem.isFile()) {
+          const item = { name: currentItem.name, type: 'file' }
+          result.push(item);
+        }
+        return result;
+      }, [])
+        .sort((a, b) => {
+          return a.type.localeCompare(b.type) || a.name.localeCompare(b.name);
+        });
+      console.table(filteredFiles);
+    } catch (err) {
+      sayOperationFailed();
+    }
   }
 
   async execCommand(command) {
@@ -63,10 +81,10 @@ export default class User {
         this.up();
       }
       else if (trimedCommand === 'ls') {
-        this.ls();
+        await this.ls();
       }
       else {
-        throw new Error('input')
+        throw new Error()
       }
     }
     catch (err) {

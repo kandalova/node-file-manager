@@ -21,7 +21,6 @@ async function startFileManger() {
 		}
 		else{
 			user.execCommand(input);
-			// sayCurrentPath(user.currentdir);
 		}
 	});
 	rl.on('SIGINT', () => {
