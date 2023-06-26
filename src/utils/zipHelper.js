@@ -11,6 +11,16 @@ export async function compressFile(dirPath) {
 		const srcStream = createReadStream(srcName);
 		const destStream = createWriteStream(destName);
 
+		srcStream.on('error', function(err) {
+			rej();
+		});
+		destStream.on('error', function(err) {
+			rej();
+		});
+		bZip.on('error', function(err) {
+			rej();
+		});
+
 		pipeline(srcStream, bZip, destStream, (err) => {
 			if (err) {
 				rej();
@@ -29,13 +39,13 @@ export async function decompressFile(dirPath) {
 		const destStream = createWriteStream(destName);
 
 		srcStream.on('error', function(err) {
-			sayOperationFailed();
+			rej();
 		});
 		destStream.on('error', function(err) {
-			sayOperationFailed();
+			rej();
 		});
 		bZip.on('error', function(err) {
-			sayOperationFailed();
+			rej();
 		});
 
 		pipeline(srcStream, bZip, destStream, (err) => {

@@ -16,7 +16,6 @@ export async function ls(dirPath) {
 }
 const promisifyReadFile = (filePath) => {
 	return new Promise((res, rej) => {
-		console.log('promise', filePath);
 		const readerStream = createReadStream(filePath);
 		readerStream.setEncoding('UTF8');
 

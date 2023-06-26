@@ -20,7 +20,6 @@ export const filterFiles = (files) => {
 
 export const matchCommand = (command, regExp, count = 1) => {
 	const result = command.match(regExp);
-	console.log('result', result);
 	if(result){
 		return count === 1 ? result[1] : command.split(' ').slice(1);
 	}
