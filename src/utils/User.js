@@ -7,6 +7,7 @@ import { sayCurrentPath, sayHello, sayGoodbye, sayInputError, sayOperationFailed
 import { filterFiles, matchCommand, promisifyReadFile } from "./helper.js";
 import regExp from "./constants.js";
 import execOS from "./osHelper.js";
+import { calculateHash } from "./hashHelper.js";
 
 export default class User {
   constructor(userName) {
@@ -140,6 +141,10 @@ export default class User {
       }
       else if(params = matchCommand(trimedCommand, regExp.os)){
         execOS(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.hash)) {
+        console.log('HASH', params);
+        await calculateHash(params);
       }
       else if (params = matchCommand(trimedCommand, regExp.cd)) {
         await this.cd(params);
