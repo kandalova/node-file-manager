@@ -1,4 +1,4 @@
-import { createReadStream } from "node:fs"
+import * as path from "node:path"
 
 export const filterFiles = (files) => {
 	const filteredFiles = files.reduce((result, currentItem) => {
@@ -27,22 +27,14 @@ export const matchCommand = (command, regExp, count = 1) => {
 	return null;
 }
 
-export const promisifyReadFile = (filePath) => {
-	return new Promise((res, rej) => {
-		const readerStream = createReadStream(filePath);
-		readerStream.setEncoding('UTF8');
-
-		readerStream.on('data', ((chunk) => {
-			process.stdout.write(chunk);
-		}));
-
-		readerStream.on('end', (() => {
-			console.log('');
-			res();
-		}));
-
-		readerStream.on('error', ((err) => {
-			rej();
-		}));
-	})
+export function getPath(dirPath, currentDir){
+	const isAbsolutePath = path.isAbsolute(dirPath);
+	let result;
+	if (!isAbsolutePath) {
+		result = path.resolve(currentDir, dirPath);
+	}
+	else {
+		result = path.resolve(dirPath);
+	}
+	return result;
 }

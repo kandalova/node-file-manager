@@ -28,6 +28,16 @@ export async function decompressFile(dirPath) {
 		const srcStream = createReadStream(srcName);
 		const destStream = createWriteStream(destName);
 
+		srcStream.on('error', function(err) {
+			sayOperationFailed();
+		});
+		destStream.on('error', function(err) {
+			sayOperationFailed();
+		});
+		bZip.on('error', function(err) {
+			sayOperationFailed();
+		});
+
 		pipeline(srcStream, bZip, destStream, (err) => {
 			if (err) {
 				rej();

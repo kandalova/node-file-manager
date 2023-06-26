@@ -9,6 +9,7 @@ const sayInputError = () => print(`Invalid input`);
 const sayOperationFailed = () => print(`Operation failed`);
 const sayCurrentPath = (path) => print(`You are currently in ${path}`);
 const sayValue = (value) => print(value);
+const printTable = (value) => console.table(value);
 
 export {
 	sayHello,
@@ -17,5 +18,6 @@ export {
 	sayInputError,
 	sayOperationFailed,
 	sayCurrentPath,
-	sayValue
+	sayValue,
+	printTable
 }
