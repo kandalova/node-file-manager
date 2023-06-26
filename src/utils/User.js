@@ -8,6 +8,7 @@ import { filterFiles, matchCommand, promisifyReadFile } from "./helper.js";
 import regExp from "./constants.js";
 import execOS from "./osHelper.js";
 import { calculateHash } from "./hashHelper.js";
+import { compressFile, decompressFile } from "./zipHelper.js";
 
 export default class User {
   constructor(userName) {
@@ -143,8 +144,15 @@ export default class User {
         execOS(params);
       }
       else if (params = matchCommand(trimedCommand, regExp.hash)) {
-        console.log('HASH', params);
         await calculateHash(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.compress, 2)) {
+        console.log('COMPRESS', params);
+        await compressFile(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.decompress, 2)) {
+        console.log('DECOMPRESS', params);
+        await decompressFile(params);
       }
       else if (params = matchCommand(trimedCommand, regExp.cd)) {
         await this.cd(params);
