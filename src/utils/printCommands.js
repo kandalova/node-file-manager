@@ -8,6 +8,7 @@ const sayDirectory = (name) => print(`You are currently in ${name}`);
 const sayInputError = () => print(`Invalid input`);
 const sayOperationFailed = () => print(`Operation failed`);
 const sayCurrentPath = (path) => print(`You are currently in ${path}`);
+const sayValue = (value) => print(value);
 
 export {
 	sayHello,
@@ -15,5 +16,6 @@ export {
 	sayDirectory,
 	sayInputError,
 	sayOperationFailed,
-	sayCurrentPath
+	sayCurrentPath,
+	sayValue
 }

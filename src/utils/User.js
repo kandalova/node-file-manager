@@ -6,6 +6,7 @@ import { createWriteStream, createReadStream } from "node:fs"
 import { sayCurrentPath, sayHello, sayGoodbye, sayInputError, sayOperationFailed } from './printCommands.js';
 import { filterFiles, matchCommand, promisifyReadFile } from "./helper.js";
 import regExp from "./constants.js";
+import execOS from "./osHelper.js";
 
 export default class User {
   constructor(userName) {
@@ -131,7 +132,16 @@ export default class User {
       const trimedCommand = command.trim();
       let params;
 
-      if (params = matchCommand(trimedCommand, regExp.cd)) {
+      if (trimedCommand === 'up') {
+        this.up();
+      }
+      else if (trimedCommand === 'ls') {
+        await this.ls();
+      }
+      else if(params = matchCommand(trimedCommand, regExp.os)){
+        execOS(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.cd)) {
         await this.cd(params);
       }
       else if (params = matchCommand(trimedCommand, regExp.cat)) {
@@ -154,12 +164,6 @@ export default class User {
       }
       else if (params = matchCommand(trimedCommand, regExp.rm)) {
         await this.rm(params);
-      }
-      else if (trimedCommand === 'up') {
-        this.up();
-      }
-      else if (trimedCommand === 'ls') {
-        await this.ls();
       }
       else {
         throw new Error()
