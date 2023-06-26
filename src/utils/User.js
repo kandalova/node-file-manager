@@ -1,8 +1,11 @@
-import { homedir, type } from "node:os"
+import { homedir } from "node:os"
 import * as path from "node:path"
-import { stat, readdir } from 'node:fs/promises';
+import { stat, readdir, writeFile, rename } from 'node:fs/promises';
+import { createWriteStream, createReadStream } from "node:fs"
 
 import { sayCurrentPath, sayHello, sayGoodbye, sayInputError, sayOperationFailed } from './printCommands.js';
+import { filterFiles, matchCommand, promisifyReadFile } from "./helper.js";
+import regExp from "./constants.js";
 
 export default class User {
   constructor(userName) {
@@ -26,14 +29,17 @@ export default class User {
   }
 
   up() {
-    this.currentdir = path.join(this.currentdir, '..');
+    this.currentdir = path.resolve(this.currentdir, '..');
   }
 
   async cd(dirPath) {
     try {
       const isAbsolutePath = path.isAbsolute(dirPath);
       if (!isAbsolutePath) {
-        dirPath = path.join(this.currentdirString, dirPath);
+        dirPath = path.resolve(this.currentdirString, dirPath);
+      }
+      else {
+        dirPath = path.resolve(dirPath);
       }
       const dirStat = await stat(dirPath);
       if (dirStat && dirStat.isDirectory()) {
@@ -48,34 +54,80 @@ export default class User {
   async ls() {
     try {
       const files = await readdir(this.currentdir, { withFileTypes: true });
-      const filteredFiles = files.reduce((result, currentItem) => {
-        if (currentItem.isDirectory()) {
-          const item = { name: currentItem.name, type: 'directory' }
-          result.push(item);
-        }
-        if (currentItem.isFile()) {
-          const item = { name: currentItem.name, type: 'file' }
-          result.push(item);
-        }
-        return result;
-      }, [])
-        .sort((a, b) => {
-          return a.type.localeCompare(b.type) || a.name.localeCompare(b.name);
-        });
+      const filteredFiles = filterFiles(files);
       console.table(filteredFiles);
     } catch (err) {
       sayOperationFailed();
     }
   }
 
+  async cat(dirPath) {
+    try {
+      dirPath = path.resolve(dirPath);
+      await promisifyReadFile(dirPath);
+    } catch (err) {
+      sayOperationFailed();
+    }
+  }
+
+  async add(dirPath) {
+    try {
+      dirPath = path.resolve(this.currentdir, dirPath);
+      await writeFile(dirPath, '', { encoding : 'utf8' });
+    } catch (err) {
+      sayOperationFailed();
+    }
+  }
+
+  async rn(dirPath) {
+    try {
+      const src = path.resolve(dirPath[0]);
+      const dest = path.resolve(path.dirname(src), dirPath[1]);
+      await rename(src, dest);
+    } catch (err) {
+      sayOperationFailed();
+    }
+  }
+
+  async cp(dirPath) {
+    try {
+      console.log('cp', dirPath);
+      const src = path.resolve(dirPath[0]);
+      const dest = path.resolve(dirPath[1], path.basename(src));
+      console.log(src);
+      console.log(dest);
+      // await writeFile(dest, '', { encoding : 'utf8' });
+      const writerStream = createWriteStream(dest);
+      const readerStream = createReadStream(src);
+      readerStream.pipe(writerStream);
+    } catch (err) {
+      sayOperationFailed();
+    }
+  }
+
+
   async execCommand(command) {
     try {
       const trimedCommand = command.trim();
-      const cdRegExp = /^cd (.+)$/;
-      const cd = trimedCommand.match(cdRegExp);
+      let params;
 
-      if (cd && cd[1]) {
-        await this.cd(cd[1]);
+      if (params = matchCommand(trimedCommand, regExp.cd)) {
+        await this.cd(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.cat)) {
+        await this.cat(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.add)) {
+        await this.add(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.rn, 2)) {
+        await this.rn(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.cp, 2)) {
+        await this.cp(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.cp, 2)) {
+        await this.cp(params);
       }
       else if (trimedCommand === 'up') {
         this.up();
