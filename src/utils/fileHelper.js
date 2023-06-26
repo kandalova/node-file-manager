@@ -76,8 +76,6 @@ export async function cp(dirPath, currentDir) {
 		const src = getPath(dirPath[0], currentDir);
 		const destDir = getPath(dirPath[1], currentDir);
 		const dest = path.resolve(destDir, path.basename(src));
-		console.log('src', src);
-		console.log("dest", dest);
 		const writerStream = createWriteStream(dest);
 		const readerStream = createReadStream(src);
 		readerStream.setEncoding('UTF8');
