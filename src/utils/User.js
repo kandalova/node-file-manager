@@ -1,6 +1,6 @@
 import { homedir } from "node:os"
 import * as path from "node:path"
-import { stat, readdir, writeFile, rename } from 'node:fs/promises';
+import { stat, readdir, writeFile, rename, unlink } from 'node:fs/promises';
 import { createWriteStream, createReadStream } from "node:fs"
 
 import { sayCurrentPath, sayHello, sayGoodbye, sayInputError, sayOperationFailed } from './printCommands.js';
@@ -94,12 +94,32 @@ export default class User {
       console.log('cp', dirPath);
       const src = path.resolve(dirPath[0]);
       const dest = path.resolve(dirPath[1], path.basename(src));
-      console.log(src);
-      console.log(dest);
+      // console.log(src);
+      // console.log(dest);
       // await writeFile(dest, '', { encoding : 'utf8' });
       const writerStream = createWriteStream(dest);
       const readerStream = createReadStream(src);
       readerStream.pipe(writerStream);
+    } catch (err) {
+      sayOperationFailed();
+    }
+  }
+
+  async mv(dirPath) {
+    try {
+      console.log('mv', dirPath);      
+      await this.cp(dirPath);
+      await this.rm(dirPath[0])
+    } catch (err) {
+      sayOperationFailed();
+    }
+  }
+
+  async rm(dirPath) {
+    try {
+      console.log('rm', dirPath);
+      const src = path.resolve(dirPath);
+      await unlink(src);
     } catch (err) {
       sayOperationFailed();
     }
@@ -128,6 +148,12 @@ export default class User {
       }
       else if (params = matchCommand(trimedCommand, regExp.cp, 2)) {
         await this.cp(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.mv, 2)) {
+        await this.mv(params);
+      }
+      else if (params = matchCommand(trimedCommand, regExp.rm)) {
+        await this.rm(params);
       }
       else if (trimedCommand === 'up') {
         this.up();
