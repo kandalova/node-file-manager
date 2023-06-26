@@ -2,8 +2,7 @@ import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
 import parseCLIUser from './utils/parseCLIUser.js';
-import { sayGoodbye, sayHello } from './utils/printCommands.js';
-import User from './utils/createUser.js';
+import User from './utils/User.js';
 
 
 async function startFileManger() {
@@ -12,16 +11,17 @@ async function startFileManger() {
 	const rl = readline.createInterface({ input, output });
 
 	const close = ()=>{
-		sayGoodbye(user.name);
+		user.exitUser();
 		rl.close();
 	}
-
-
-	sayHello(user.name);
 
 	rl.on('line', (input) => {
 		if (input === '.exit') {
 			close();
+		}
+		else{
+			user.execCommand(input);
+			// sayCurrentPath(user.currentdir);
 		}
 	});
 	rl.on('SIGINT', () => {

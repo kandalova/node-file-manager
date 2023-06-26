@@ -7,11 +7,13 @@ const sayGoodbye = (name) => print(`Thank you for using File Manager, ${name}, g
 const sayDirectory = (name) => print(`You are currently in ${name}`);
 const sayInputError = () => print(`Invalid input`);
 const sayOperationFailed = () => print(`Operation failed`);
+const sayCurrentPath = (path) => print(`You are currently in ${path}`);
 
 export {
 	sayHello,
 	sayGoodbye,
 	sayDirectory,
 	sayInputError,
-	sayOperationFailed
+	sayOperationFailed,
+	sayCurrentPath
 }
